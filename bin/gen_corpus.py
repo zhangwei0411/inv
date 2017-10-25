@@ -14,7 +14,6 @@ import sklearn
 from sklearn.externals.six import StringIO
 import pydotplus
 
-
 #predictors = "mktcap", "nmc", "industry", "area", "pe", "pb_y", "timeToMarket","rev","profit","npr","holders"]
 filters = "mktcap|nmc|industry_*|area_*|pe|pb_y|timeToMarket|rev|profit|npr|holders"
 
