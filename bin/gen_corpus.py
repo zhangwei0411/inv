@@ -16,19 +16,22 @@ import pydotplus
 
 #predictors = "mktcap", "nmc", "industry", "area", "pe", "pb_y", "timeToMarket","rev","profit","npr","holders"]
 filters = "mktcap|nmc|industry_*|area_*|pe|pb_y|timeToMarket|rev|profit|npr|holders"
+day = '1025'
+basic = '../data/' + day + '.csv'
+info = '../data/' + day + '_info.csv'
 
 def get_basics():
     df = ts.get_stock_basics()
-    df.to_csv('../data/1024.csv',encoding="utf-8")
+    df.to_csv(basic,encoding="utf-8")
 
 def get_marketinfo():
     df = ts.get_today_all()
-    df.to_csv('../data/1024_info.csv',encoding="utf-8")
+    df.to_csv(info,encoding="utf-8")
 
 def merge():
-    target = pd.read_csv("../data/1024_info.csv")
+    target = pd.read_csv(basic)
 
-    attr = pd.read_csv("../data/1024.csv")
+    attr = pd.read_csv(info)
     df = pd.merge(target, attr, on='code')
     return df
 
@@ -136,7 +139,7 @@ def train(df):
         dot_data = StringIO()
         tree.export_graphviz(gbm0.estimators_[num].tree_, out_file=dot_data)
         graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
-        graph.write_pdf("../result/1024_" + str(num) + "_trees.pdf")
+        graph.write_pdf("../result/" + day + "_" + str(num) + "_trees.pdf")
 
         #tree.export_graphviz(gbm0.estimators_[num].tree_,out_file = str(num) + 'tree.dot')
 
@@ -144,12 +147,12 @@ def train(df):
 
 
 if __name__ == '__main__':
-    #get_basics()
-    #get_marketinfo()
+    get_basics()
+    get_marketinfo()
     df = merge()
     df = preprocess(df)
     #grid_search_train(df)
-    train(df)
+    #train(df)
 
 
     '''
