@@ -17,7 +17,7 @@ from sklearn.utils import shuffle
 
 #predictors = "mktcap", "nmc", "industry", "area", "pe", "pb_y", "timeToMarket","rev","profit","npr","holders"]
 filters = "mktcap|nmc|industry_*|area_*|pe|pb_y|timeToMarket|rev|profit|npr|holders"
-day = '1026'
+day = '1103'
 basic = '../data/' + day + '.csv'
 info = '../data/' + day + '_info.csv'
 
@@ -122,7 +122,7 @@ def train(df):
     #print(y.shape)
 
     #gbm0 = GradientBoostingClassifier(random_state=10)
-    gbm0 = RandomForestClassifier(n_estimators=21,criterion='entropy',max_depth=5,min_samples_leaf=2)
+    gbm0 = RandomForestClassifier(n_estimators=4,criterion='entropy',max_depth=9,min_samples_leaf=2)
     gbm0.fit(X, y)
     print(gbm0.feature_importances_)
     print(gbm0.classes_)
@@ -150,12 +150,12 @@ def train(df):
 
 
 if __name__ == '__main__':
-    #get_basics()
-    #get_marketinfo()
+    get_basics()
+    get_marketinfo()
     df = merge()
     df = preprocess(df)
-    #grid_search_train(df)
-    train(df)
+    grid_search_train(df)
+    #train(df)
 
 
     '''
