@@ -13,10 +13,11 @@ from sklearn import tree
 import sklearn
 from sklearn.externals.six import StringIO
 import pydotplus
+from sklearn.utils import shuffle
 
 #predictors = "mktcap", "nmc", "industry", "area", "pe", "pb_y", "timeToMarket","rev","profit","npr","holders"]
 filters = "mktcap|nmc|industry_*|area_*|pe|pb_y|timeToMarket|rev|profit|npr|holders"
-day = '1025'
+day = '1103'
 basic = '../data/' + day + '.csv'
 info = '../data/' + day + '_info.csv'
 
@@ -64,11 +65,12 @@ def preprocess(df):
     '''
 
     df.drop(['code','changepercent','trade','open','high','low','area','industry','settlement','name_y','per','pb_x'], axis=1, inplace=True)
-    print(df.dtypes)
+
     return df
     #print(dummies_Area)
 
 def grid_search_train(df):
+    df = shuffle(df)
     train_df = df.filter(regex=filters)
     results = []
     sample_leaf_options = list(range(1, 10, 1))
@@ -76,10 +78,11 @@ def grid_search_train(df):
     n_depth_options = list(range(1,10,1))
     groud_truth = df['zd'][801:]
 
+
     for leaf_size in sample_leaf_options:
         for n_estimators_size in n_estimators_options:
             for n_depth_size in n_depth_options:
-                alg = RandomForestClassifier(max_depth=n_depth_size,min_samples_leaf=leaf_size, n_estimators=n_estimators_size, random_state=50)
+                alg = RandomForestClassifier(max_depth=n_depth_size,min_samples_leaf=leaf_size, n_estimators=n_estimators_size,criterion='entropy')
                 alg.fit(train_df[:801],df['zd'][:801])
                 predict = alg.predict(train_df[801:])
                 # 用一个三元组，分别记录当前的 min_samples_leaf，n_estimators， 和在测试数据集上的精度
@@ -119,7 +122,7 @@ def train(df):
     #print(y.shape)
 
     #gbm0 = GradientBoostingClassifier(random_state=10)
-    gbm0 = RandomForestClassifier(n_estimators=21,criterion='entropy',max_depth=8,min_samples_leaf=5)
+    gbm0 = RandomForestClassifier(n_estimators=4,criterion='entropy',max_depth=9,min_samples_leaf=2)
     gbm0.fit(X, y)
     print(gbm0.feature_importances_)
     print(gbm0.classes_)
@@ -151,7 +154,7 @@ if __name__ == '__main__':
     get_marketinfo()
     df = merge()
     df = preprocess(df)
-    #grid_search_train(df)
+    grid_search_train(df)
     #train(df)
 
 
