@@ -20,7 +20,7 @@ import pypinyin
 
 #predictors = "mktcap", "nmc", "industry", "area", "pe", "pb_y", "timeToMarket","rev","profit","npr","holders"]
 filters = "mktcap|nmc|industry_*|area_*|pe|pb_y|timeToMarket|rev|profit|npr|holders"
-day = '0306'
+day = '0312'
 basic = '../data/' + day + '.csv'
 info = '../data/' + day + '_info.csv'
 
@@ -127,7 +127,10 @@ def train(df):
     #print(y.shape)
 
     #gbm0 = GradientBoostingClassifier(random_state=10)
+
     gbm0 = RandomForestClassifier(n_estimators=6,criterion='gini',max_depth=5,min_samples_leaf=8)
+
+
     gbm0.fit(X, y)
     print(gbm0.feature_importances_)
     print(gbm0.classes_)
@@ -145,11 +148,30 @@ def train(df):
     numTrees = len(gbm0.estimators_)
     for num in range(0,numTrees):
         dot_data = StringIO()
-        tree.export_graphviz(gbm0.estimators_[num].tree_,feature_names=X.columns,class_names=["0","1"], out_file=dot_data)
+        tree.export_graphviz(gbm0.estimators_[num].tree_,feature_names=X.columns,class_names=["descend","ascend"], out_file=dot_data)
         graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
         graph.write_pdf("../result/" + day + "_" + str(num) + "_trees.pdf")
 
         #tree.export_graphviz(gbm0.estimators_[num].tree_,out_file = str(num) + 'tree.dot')
+    '''
+    gbm0 = tree.DecisionTreeClassifier()
+    gbm0.fit(X, y)
+    print(gbm0.feature_importances_)
+    print(gbm0.classes_)
+    y_pred = gbm0.predict(X)
+    y_predprob = gbm0.predict_proba(X)[:, 1]
+    print("Accuracy : %.4g" % metrics.accuracy_score(y.values, y_pred))
+    print("AUC Score (Train): %f" % metrics.roc_auc_score(y, y_predprob))
+    importances = gbm0.feature_importances_
+    indices = np.argsort(importances)[::-1]
+    for f in range(X.shape[1]):
+        # if f >= 50:break
+        print("%d. feature %d(%s) (%f)" % (f + 1, indices[f], X.columns[indices[f]], importances[indices[f]]))
+
+    dot_data = tree.export_graphviz(gbm0,feature_names=X.columns,class_names=["descend","ascend"], out_file=None)
+    graph = pydotplus.graph_from_dot_data(dot_data)
+    graph.write_pdf("iris.pdf")
+    '''
 
     print(cross_validation.cross_val_score(gbm0, X, y, cv=5))
 
