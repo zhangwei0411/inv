@@ -15,9 +15,12 @@ from sklearn.externals.six import StringIO
 import pydotplus
 from sklearn.utils import shuffle
 
+from pypinyin import lazy_pinyin, Style
+import pypinyin
+
 #predictors = "mktcap", "nmc", "industry", "area", "pe", "pb_y", "timeToMarket","rev","profit","npr","holders"]
 filters = "mktcap|nmc|industry_*|area_*|pe|pb_y|timeToMarket|rev|profit|npr|holders"
-day = '1103'
+day = '0312'
 basic = '../data/' + day + '.csv'
 info = '../data/' + day + '_info.csv'
 
@@ -45,6 +48,8 @@ def preprocess(df):
     df['zd'] = df['changepercent'].map(lambda x: 1 if x > 0 else 0)
 
     df["area"] = df["area"].fillna('其它')
+    df['area'] = df['area'].map(lambda x: '_'.join(lazy_pinyin(x, style=Style.TONE2)))
+    df['industry'] = df['industry'].map(lambda x: '_'.join(lazy_pinyin(x, style=Style.TONE2)))
 
     dummies_Industry = pd.get_dummies(df['industry'], prefix='industry')
     dummies_Area = pd.get_dummies(df['area'], prefix='area')
@@ -122,7 +127,10 @@ def train(df):
     #print(y.shape)
 
     #gbm0 = GradientBoostingClassifier(random_state=10)
-    gbm0 = RandomForestClassifier(n_estimators=4,criterion='entropy',max_depth=9,min_samples_leaf=2)
+
+    gbm0 = RandomForestClassifier(n_estimators=6,criterion='gini',max_depth=5,min_samples_leaf=8)
+
+
     gbm0.fit(X, y)
     print(gbm0.feature_importances_)
     print(gbm0.classes_)
@@ -140,11 +148,30 @@ def train(df):
     numTrees = len(gbm0.estimators_)
     for num in range(0,numTrees):
         dot_data = StringIO()
-        tree.export_graphviz(gbm0.estimators_[num].tree_, out_file=dot_data)
+        tree.export_graphviz(gbm0.estimators_[num].tree_,feature_names=X.columns,class_names=["descend","ascend"], out_file=dot_data)
         graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
         graph.write_pdf("../result/" + day + "_" + str(num) + "_trees.pdf")
 
         #tree.export_graphviz(gbm0.estimators_[num].tree_,out_file = str(num) + 'tree.dot')
+    '''
+    gbm0 = tree.DecisionTreeClassifier()
+    gbm0.fit(X, y)
+    print(gbm0.feature_importances_)
+    print(gbm0.classes_)
+    y_pred = gbm0.predict(X)
+    y_predprob = gbm0.predict_proba(X)[:, 1]
+    print("Accuracy : %.4g" % metrics.accuracy_score(y.values, y_pred))
+    print("AUC Score (Train): %f" % metrics.roc_auc_score(y, y_predprob))
+    importances = gbm0.feature_importances_
+    indices = np.argsort(importances)[::-1]
+    for f in range(X.shape[1]):
+        # if f >= 50:break
+        print("%d. feature %d(%s) (%f)" % (f + 1, indices[f], X.columns[indices[f]], importances[indices[f]]))
+
+    dot_data = tree.export_graphviz(gbm0,feature_names=X.columns,class_names=["descend","ascend"], out_file=None)
+    graph = pydotplus.graph_from_dot_data(dot_data)
+    graph.write_pdf("iris.pdf")
+    '''
 
     print(cross_validation.cross_val_score(gbm0, X, y, cv=5))
 
@@ -154,8 +181,8 @@ if __name__ == '__main__':
     get_marketinfo()
     df = merge()
     df = preprocess(df)
-    grid_search_train(df)
-    #train(df)
+    #grid_search_train(df)
+    train(df)
 
 
     '''
