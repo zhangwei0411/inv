@@ -20,7 +20,7 @@ import pypinyin
 
 #predictors = "mktcap", "nmc", "industry", "area", "pe", "pb_y", "timeToMarket","rev","profit","npr","holders"]
 filters = "mktcap|nmc|industry_*|area_*|pe|pb_y|timeToMarket|rev|profit|npr|holders"
-day = '0312'
+day = '0313'
 basic = '../data/' + day + '.csv'
 info = '../data/' + day + '_info.csv'
 

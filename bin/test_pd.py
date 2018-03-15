@@ -1,6 +1,14 @@
 import pandas as pd
 import numpy as np
+import tushare as ts
+import sys
 
+df = ts.get_index()
+print(df.iat[0,2])
+print(df.iat[12,2])
+print(df.iat[17,2])
+#print(df)
+sys.exit(0)
 # For .read_csv, always use header=0 when you know row 0 is the header row
 df = pd.read_csv('../data/train.csv', header=0)
 print(type(df))

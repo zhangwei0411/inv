@@ -1,4 +1,4 @@
-# coding=utf-8  
+# coding=utf-8
 import numpy as np  
 from math import sqrt  
 import time  
@@ -127,9 +127,9 @@ class OnePassCluster:
   
   
 # 读取测试集  
-temperature_all_city = np.loadtxt(open("c4.txt", encoding='utf8'), delimiter=",", usecols=range(1,101))  # 读取聚类特征
+temperature_all_city = np.loadtxt(open("c4.txt"), delimiter=",", usecols=range(1,101))  # 读取聚类特征
 #xy = np.loadtxt('c6.txt', delimiter=",", usecols=(1, 1))  # 读取各地经纬度
-f = open('c4.txt', 'r',encoding='utf8')
+f = open('c4.txt', 'r')
 lines = f.readlines()
 zone_dict = [i.split(',')[0] for i in lines]  # 读取地区并转化为字典
 print(len(zone_dict))
